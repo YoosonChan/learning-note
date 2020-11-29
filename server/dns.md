@@ -36,3 +36,17 @@
         > URL转发功能目前只支持网站有备案号且接入商是万网的域名转发需求     
         > URL转发的目标域名不支持中文域名
     - TTL
+
+# Nginx中配置域名（nginx.conf）
+## 新增配置结构
+```
+server 
+{ 
+	listen      80;     # 80端口监听
+	server_name example.com;  # 域名
+	location / {
+	    index index.htm index.html index.php; 
+	    root /home/www/xxx;   # 初始页面在本地的目录位置，即路径
+	}
+}
+```
