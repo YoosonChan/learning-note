@@ -112,7 +112,8 @@ git remote -v                   # 查看远程版本库信息
 git remote show <remote>        # 查看指定远程版本库信息
 git remote add <remote> <url>   # 添加远程版本库
 git fetch <remote>              # 从远程库获取代码
-git pull <remote> <branch>      # 下载代码及快速合并
+git pull <remote> <branch>      # 下载代码及快速合并(merge合并)
+git pull --rebase               # 下载代码及快速合并（rebase合并）
 git push -u <remote> <branch>   # 第一次上传代码
 git push <remote> <branch|tag>  # 上传代码/标签及快速合并
 git push <remote> :<branch/tag-name>
