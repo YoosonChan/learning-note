@@ -93,8 +93,9 @@ git tag -d <tagname>    # 删除标签
 
 ## 合并与衍合
 ```bash
-git merge <pointer: obj>     # 目标合并到当前（Fast forward模式，无合并历史记录）
-git rebase <pointer: obj>    # 当前衍合到目标（之后还需互换合并）
+git merge <pointer: obj>    # 目标合并到当前（Fast forward模式，无合并历史记录）
+git rebase <pointer: obj>   # 当前衍合到目标（之后还需互换合并）
+git rebase -i <pointer>     # 交互式对话框合并
 git merge --no-ff -m <msg> <branch>
                             # 目标合并到当前(普通模式，有合并历史记录)
 ```
