@@ -12,7 +12,11 @@ sandbox  |  levels  |  undo  |  reset
 ```
 > 默认开发分支：```master```        
 > 默认远程版本库：```origin```      
-> 默认开发分支：```HEAD```
+> 默认开发分支：```HEAD```      
+多个组合：      
+>> ```^n```: 多个父级        
+>> ```^*```: 多少代      
+>> ```~n```: 多少代      
 ----------------------------------
 
 
@@ -95,6 +99,7 @@ git tag -d <tagname>    # 删除标签
 ```bash
 git merge <pointer: obj>    # 目标合并到当前（Fast forward模式，无合并历史记录）
 git rebase <pointer: obj>   # 当前衍合到目标（之后还需互换合并）
+git rebase <cur> <obj>      # 目标衍合到当前
 git rebase -i <pointer>     # 交互式对话框合并
 git merge --no-ff -m <msg> <branch>
                             # 目标合并到当前(普通模式，有合并历史记录)
@@ -122,7 +127,7 @@ git stash list              # 查看暂存工作现场
 git stash apply             # 恢复暂存工作现场
 git stash drop              # 删除暂存工作现场
 git stash pop               # 恢复并删除暂存工作现场
-git cherry-pick <commit>    # 复制特定提交到当前分支
+git cherry-pick <pointer>[] # 复制特定提交到当前分支
 ```
 
 ## ```.gitignore```
@@ -1007,3 +1012,21 @@ $ cat .gitconfig
 --------------------------------------
 # GUI工具
 > SourceTree
+
+--------------------------------------
+# 其他
+```
+git describe 的​​语法是：
+
+git describe <ref>
+
+<ref> 可以是任何能被 Git 识别成提交记录的引用，如果你没有指定的话，Git 会以你目前所检出的位置（HEAD）。
+
+它输出的结果是这样的：
+
+<tag>_<numCommits>_g<hash>
+
+tag 表示的是离 ref 最近的标签， numCommits 是表示这个 ref 与 tag 相差有多少个提交记录， hash 表示的是你所给定的 ref 所表示的提交记录哈希值的前几位。
+
+当 ref 提交记录上有某个标签时，则只输出标签名称
+```
