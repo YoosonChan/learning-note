@@ -1,11 +1,15 @@
 # 学习清单
 ## Git学习
+[Git总结](./git/git_summary.md)
+
 [Git学习笔记](./git/git.md)
 > [Git练习网站: ```learning git branching```](https://learngitbranching.js.org/?locale=zh_CN)
 
 -------------------------------
 
 ## yarn学习
+[yarn总结](./yarn/yarn_summary.md#)
+
 [yarn学习笔记](./yarn/yarn.md#)
 
 > [软件包管理](https://www.yarnpkg.com.cn/)
