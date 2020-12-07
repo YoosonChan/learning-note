@@ -17,6 +17,11 @@
 > **前提**: 安装```Node.js```
 
 Linux(CentOS)
+
+在```CentOS，Fedora```和```RHEL```上，您可以通过我们的```RPM```软件包存储库安装```Yarn```。
+```
+curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
+```
 > ```sudo yum install yarn```       
 > ```yarn --version```
 
