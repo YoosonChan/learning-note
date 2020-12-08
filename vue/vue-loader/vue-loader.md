@@ -1,4 +1,178 @@
 # [Vue Loader](https://vue-loader.vuejs.org/zh/)
+- [单文件组件规范](#单文件组件规范)
+- [选项参考](#选项参考)
+  > [```transformAssetUrls```](#transformAssetUrls)   
+  > [```compiler```](#compiler)   
+  > [```compilerOptions```](#compilerOptions)   
+  > [```transpileOptions```](#transpileOptions)   
+  > [```optimizeSSR```](#optimizeSSR)   
+  > [```hotReload```](#hotReload)   
+  > [```productionMode```](#productionMode)   
+  > [```shadowMode```](#shadowMode)   
+  > [```cacheDirectory / cacheIdentifier```](#cacheDirectory/cacheIdentifier)   
+  > [```prettify```](#prettify)   
+  > [```exposeFilename```](#exposeFilename)   
+
+
+------------------------------------
+
+# 目录
+- [介绍](#介绍)
+- [起步](#起步)
+- [处理资源路径](#处理资源路径)
+- [使用预处理器](#使用预处理器)
+- [Scoped CSS](#Scoped_CSS)
+- [CSS Modules](#CSS_Modules)
+- [热重载](#热重载)
+- [函数式组件](#函数式组件)
+- [自定义块](#自定义块)
+- [CSS 提取](#CSS提取)
+- [代码校验 (Linting)](#代码校验(Linting))
+- [测试](#测试)
+
+-------------------------------------
+
+# 介绍
+> **版本说明**    
+这份文档是为 ```Vue Loader v15``` 及以上版本撰写的。如果你正在从 v14 或更早的版本往这里迁移，请查阅[迁移指南](https://vue-loader.vuejs.org/zh/migrating.html)。如果你正在使用老版本，其对应的文档在此。
+
+## ```Vue Loader``` 是什么？
+```Vue Loader``` 是一个 [```webpack```](https://webpack.js.org/) 的 ```loader```，它允许你以一种名为[单文件组件 (SFCs)](https://vue-loader.vuejs.org/zh/spec.html)的格式撰写 ```Vue``` 组件：
+```js
+<template>
+  <div class="example">{{ msg }}</div>
+</template>
+
+<script>
+export default {
+  data () {
+    return {
+      msg: 'Hello world!'
+    }
+  }
+}
+</script>
+
+<style>
+.example {
+  color: red;
+}
+</style>
+```
+```Vue Loader``` 还提供了很多酷炫的特性：
+
+- 允许为 ```Vue``` 组件的每个部分使用其它的 ```webpack loader```，例如在 ```<style>``` 的部分使用 ```Sass``` 和在 ```<template>``` 的部分使用 ```Pug```；
+- 允许在一个 ```.vue ```文件中使用自定义块，并对其运用自定义的 ```loader``` 链；
+- 使用 ```webpack loader``` 将 ```<style>``` 和 ```<template>``` 中引用的资源当作模块依赖来处理；
+- 为每个组件模拟出 ```scoped CSS```；
+- 在开发过程中使用热重载来保持状态。
+简而言之，```webpack``` 和 ```Vue Loader``` 的结合为你提供了一个现代、灵活且极其强大的前端工作流，来帮助撰写 ```Vue.js``` 应用。
+
+-----------------------------
+
+# 单文件组件规范
+## 简介
+```.vue``` 文件是一个自定义的文件类型，用类 ```HTML``` 语法描述一个 ```Vue``` 组件。每个 ```.vue``` 文件包含三种类型的顶级语言块 ```<template>```、```<script>``` 和 ```<style>```，还允许添加可选的自定义块：
+```html
+<template>
+  <div class="example">{{ msg }}</div>
+</template>
+
+<script>
+export default {
+  data () {
+    return {
+      msg: 'Hello world!'
+    }
+  }
+}
+</script>
+
+<style>
+.example {
+  color: red;
+}
+</style>
+
+<custom1>
+  This could be e.g. documentation for the component.
+</custom1>
+```
+```vue-loader``` 会解析文件，提取每个语言块，如有必要会通过其它 ```loader``` 处理，最后将他们组装成一个 ```ES Module```，它的默认导出是一个 ```Vue.js``` 组件选项的对象。
+
+```vue-loader``` 支持使用非默认语言，比如 ```CSS``` 预处理器，预编译的 ```HTML``` 模版语言，通过设置语言块的 ```lang``` 属性。例如，你可以像下面这样使用 ``Sass`` 语法编写样式：
+```html
+<style lang="sass">
+  /* write Sass! */
+</style>
+```
+更多细节可以在[使用预处理器](https://vue-loader.vuejs.org/zh/guide/pre-processors.html)中找到。
+
+## 语言块
+### 模板
+- 每个 ```.vue``` 文件最多包含一个 ```<template>``` 块。
+
+- 内容将被提取并传递给 ```vue-template-compiler``` 为字符串，预处理为 ```JavaScript``` 渲染函数，并最终注入到从 ```<script>``` 导出的组件中。
+
+### 脚本
+- 每个 ```.vue``` 文件最多包含一个 ```<script>``` 块。
+
+- 这个脚本会作为一个 ```ES Module``` 来执行。
+
+- 它的**默认导出**应该是一个``` Vue.js``` 的[组件选项对象](https://cn.vuejs.org/v2/api/#%E9%80%89%E9%A1%B9-%E6%95%B0%E6%8D%AE)。也可以导出由 ```Vue.extend()``` 创建的扩展对象，但是普通对象是更好的选择。
+
+- 任何匹配 ```.js``` 文件 (或通过它的 ```lang``` 特性指定的扩展名) 的 ```webpack``` 规则都将会运用到这个 ```<script>``` 块的内容中。
+
+### 样式
+默认匹配：```/\.css$/```。
+
+一个 ```.vue``` 文件可以包含多个 ```<style>``` 标签。
+
+```<style>``` 标签可以有 ````scoped```` 或者 ````module```` 属性 (查看 ````scoped CSS````和 ````CSS Modules````) 以帮助你将样式封装到当前组件。具有不同封装模式的多个 ```<style>``` 标签可以在同一个组件中混合使用。
+
+任何匹配 ```.css``` 文件 (或通过它的 ```lang``` 特性指定的扩展名) 的 ```webpack``` 规则都将会运用到这个 ```<style>``` 块的内容中。
+
+### 自定义 块
+可以在 ```.vue``` 文件中添加额外的自定义块来实现项目的特定需求，例如 ```<docs>``` 块。```vue-loader``` 将会使用标签名来查找对应的 ```webpack loader``` 来应用在对应的块上。```webpack loader``` 需要在 ```vue-loader``` 的选项 ```loaders``` 中指定。
+
+更多细节，查看[自定义块](https://vue-loader.vuejs.org/zh/guide/custom-blocks.html)。
+
+### Src 导入
+如果喜欢把 ```.vue``` 文件分隔到多个文件中，你可以通过 ```src``` 属性导入外部文件：
+```html
+<template src="./template.html"></template>
+<style src="./style.css"></style>
+<script src="./script.js"></script>
+```
+需要注意的是 ```src``` 导入遵循和 ```webpack``` 模块请求相同的路径解析规则，这意味着：
+
+- 相对路径需要以 ```./``` 开始
+- 你可以从 ```NPM``` 依赖中导入资源：
+```html
+<!-- import a file from the installed "todomvc-app-css" npm package -->
+<style src="todomvc-app-css/index.css">
+```
+在自定义块上同样支持 ```src``` 导入，例如：
+```html
+<unit-test src="./unit-test.js">
+</unit-test>
+```
+### 语法高亮 / IDE 支持
+目前有下列 IDE/编辑器 支持语法高亮：
+- Sublime Text
+- VS Code
+- Atom
+- Vim
+- Emacs
+- Brackets
+- JetBrains IDEs (WebStorm、PhpStorm 等)
+
+非常感谢其他编辑器/```IDE``` 所做的贡献！如果在 ```Vue``` 组件中没有使用任何预处理器，你可以把 ```.vue``` 文件当作 ```HTML``` 对待。
+
+### 注释
+在语言块中使用该语言块对应的注释语法 (```HTML```、```CSS```、```JavaScript```、```Jade``` 等)。顶层注释使用 ```HTML``` 注释语法：```<!-- comment contents here -->```。
+
+-----------------------------------------------
 
 # 起步
 ## Vue CLI
@@ -135,7 +309,221 @@ createElement('img', {
 
 -------------------------------------
 
-# Scoped CSS
+# 使用预处理器
+在 ```webpack``` 中，所有的预处理器需要匹配对应的 ```loader```。```Vue Loader``` 允许你使用其它 ```webpack loader``` 处理 ```Vue``` 组件的某一部分。它会根据 ```lang``` 特性以及你 ```webpack``` 配置中的规则自动推断出要使用的 ```loader。```
+
+## Sass
+例如，为了通过 ```Sass/SCSS``` 编译我们的 ```<style>``` 标签：
+```js
+npm install -D sass-loader node-sass
+在你的 webpack 配置中：
+
+module.exports = {
+  module: {
+    rules: [
+      // ... 忽略其它规则
+
+      // 普通的 `.scss` 文件和 `*.vue` 文件中的
+      // `<style lang="scss">` 块都应用它
+      {
+        test: /\.scss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          'sass-loader'
+        ]
+      }
+    ]
+  },
+  // 插件忽略
+}
+```
+现在，除了能够 ```import 'style.scss'```，我们还可以在 ``Vue`` 组件中使用 ``SCSS``：
+```html
+<style lang="scss">
+/* 在这里撰写 SCSS */
+</style>
+```
+这个块里的任何内容都会被 ```webpack``` 当作在一个 ```*.scss``` 文件中一样被处理。
+
+### Sass vs SCSS
+注意 ```sass-loader``` 会默认处理不基于缩进的 ```scss``` 语法。为了使用基于缩进的 ```sass``` 语法，你需要向这个 ```loader``` 传递选项：
+```js
+// webpack.config.js -> module.rules
+{
+  test: /\.sass$/,
+  use: [
+    'vue-style-loader',
+    'css-loader',
+    {
+      loader: 'sass-loader',
+      options: {
+        indentedSyntax: true,
+        // sass-loader version >= 8
+        sassOptions: {
+          indentedSyntax: true
+        }
+      }
+    }
+  ]
+}
+```
+### 共享全局变量
+```sass-loader``` 也支持一个 ```prependData``` 选项，这个选项允许你在所有被处理的文件之间共享常见的变量，而不需要显式地导入它们：
+```js
+// webpack.config.js -> module.rules
+{
+  test: /\.scss$/,
+  use: [
+    'vue-style-loader',
+    'css-loader',
+    {
+      loader: 'sass-loader',
+      options: {
+        // 你也可以从一个文件读取，例如 `variables.scss`
+        // 如果 sass-loader 版本 = 8，这里使用 `prependData` 字段
+        // 如果 sass-loader 版本 < 8，这里使用 `data` 字段
+        additionalData: `$color: red;`
+      }
+    }
+  ]
+}
+```
+## Less
+```js
+npm install -D less less-loader
+// webpack.config.js -> module.rules
+{
+  test: /\.less$/,
+  use: [
+    'vue-style-loader',
+    'css-loader',
+    'less-loader'
+  ]
+}
+```
+## Stylus
+```js
+npm install -D stylus stylus-loader
+// webpack.config.js -> module.rules
+{
+  test: /\.styl(us)?$/,
+  use: [
+    'vue-style-loader',
+    'css-loader',
+    'stylus-loader'
+  ]
+}
+```
+## PostCSS
+> **TIP**   
+```Vue Loader v15``` 不再默认应用 ```PostCSS``` 变换。你需要通过 ```postcss-loader``` 使用 ```PostCSS```。
+```js
+npm install -D postcss-loader
+// webpack.config.js -> module.rules
+{
+  test: /\.css$/,
+  use: [
+    'vue-style-loader',
+    {
+      loader: 'css-loader',
+      options: { importLoaders: 1 }
+    },
+    'postcss-loader'
+  ]
+}
+```
+```PostCSS``` 的配置可以通过 ```postcss.config.js``` 或 ```postcss-loader``` 选项来完成。其更多细节请查阅 [```postcss-loader``` 文档](https://github.com/webpack-contrib/postcss-loader)。
+
+```postcss-loader``` 也可以和上述其它预处理器结合使用。
+
+## Babel
+```js
+npm install -D babel-core babel-loader
+// webpack.config.js -> module.rules
+{
+  test: /\.js?$/,
+  loader: 'babel-loader'
+}
+```
+```Babel``` 的配置可以通过 ```.babelrc``` 或 ```babel-loader``` 选项来完成。
+
+### 排除 node_modules
+```exclude: /node_modules/ ```在应用于 ```.js``` 文件的 ```JS``` 转译规则 (例如 ```babel-loader```) 中是蛮常见的。鉴于 ```v15``` 中的推导变化，如果你导入一个 ```node_modules``` 内的 ```Vue``` 单文件组件，它的 ```<script>``` 部分在转译时将会被排除在外。
+
+为了确保 ```JS``` 的转译应用到 ```node_modules``` 的 ```Vue``` 单文件组件，你需要通过使用一个排除函数将它们加入白名单：
+```js
+{
+  test: /\.js$/,
+  loader: 'babel-loader',
+  exclude: file => (
+    /node_modules/.test(file) &&
+    !/\.vue\.js/.test(file)
+  )
+}
+```
+## TypeScript
+```js
+npm install -D typescript ts-loader
+// webpack.config.js
+module.exports = {
+  resolve: {
+    // 将 `.ts` 添加为一个可解析的扩展名。
+    extensions: ['.ts', '.js']
+  },
+  module: {
+    rules: [
+      // ... 忽略其它规则
+      {
+        test: /\.ts$/,
+        loader: 'ts-loader',
+        options: { appendTsSuffixTo: [/\.vue$/] }
+      }
+    ]
+  },
+  // ...plugin omitted
+}
+```
+```TypeScript``` 的配置可以通过 ```tsconfig.json``` 来完成。你也可以查阅 ```ts-loader``` 的文档。
+
+## Pug
+模板的处理会稍微有些不同，因为绝大多数 ```webpack``` 的模板类 ```loader```，诸如 ```pug-loader```，会返回一个模板函数而不是一个编译好的 ```HTML``` 字符串。所以我们需要使用一个返回原始的 ```HTML``` 字符串的 ```loader```，例如 ```pug-plain-loader```，而不是使用 ```pug-loader```。
+```js
+npm install -D pug pug-plain-loader
+// webpack.config.js -> module.rules
+{
+  test: /\.pug$/,
+  loader: 'pug-plain-loader'
+}
+```
+然后你可以写：
+```pug
+<template lang="pug">
+div
+  h1 Hello world!
+</template>
+```
+如果你还打算使用它在 JavaScript 中将 .pug 文件作为字符串导入，你需要在这个预处理 loader 之后链上 raw-loader。注意添加 raw-loader 会破坏 Vue 组件内的用法，所以你需要定义两条规则，其中一条指向使用了一个 resourceQuery 的 Vue 文件，另一条指向 (回退到) JavaScript 导入：
+```js
+// webpack.config.js -> module.rules
+{
+  test: /\.pug$/,
+  oneOf: [
+    // 这条规则应用到 Vue 组件内的 `<template lang="pug">`
+    {
+      resourceQuery: /^\?vue/,
+      use: ['pug-plain-loader']
+    },
+    // 这条规则应用到 JavaScript 内的 pug 导入
+    {
+      use: ['raw-loader', 'pug-plain-loader']
+    }
+  ]
+}
+```
+-------------------------------------
+
+# Scoped_CSS
 当 ```<style>``` 标签有 ```scoped``` 属性时，它的 ```CSS``` 只作用于当前组件中的元素。这类似于 ```Shadow DOM``` 中的样式封装。它有一些注意事项，但不需要任何 ```polyfill```。它通过使用 ```PostCSS``` 来实现以下转换：
 ```html
 <style scoped>
@@ -197,7 +585,7 @@ createElement('img', {
 
 ------------------------------
 
-# CSS Modules
+# CSS_Modules
 [CSS Modules](https://github.com/css-modules/css-modules) 是一个流行的，用于模块化和组合 ```CSS``` 的系统。```vue-loader``` 提供了与 ```CSS Modules``` 的一流集成，可以作为模拟 ```scoped CSS``` 的替代方案。
 
 ## 用法
@@ -335,3 +723,405 @@ export default {
 ------------------------------------
 
 # 热重载
+“热重载”不只是当你修改文件的时候简单重新加载页面。启用热重载后，当你修改 ```.vue``` 文件时，该组件的所有实例将在**不刷新页面**的情况下被替换。它甚至保持了应用程序和被替换组件的当前状态！当你调整模版或者修改样式时，这极大地提高了开发体验。
+
+![hot-reload](https://vue-loader.vuejs.org/hot-reload.gif)
+
+## 状态保留规则
+- 当编辑一个组件的 ```<template>``` 时，这个组件实例将就地重新渲染，并保留当前所有的私有状态。能够做到这一点是因为模板被编译成了新的无副作用的渲染函数。
+
+- 当编辑一个组件的``` <script>``` 时，这个组件实例将就地销毁并重新创建。(应用中其它组件的状态将会被保留) 是因为``` <script>``` 可能包含带有副作用的生命周期钩子，所以将重新渲染替换为重新加载是必须的，这样做可以确保组件行为的一致性。这也意味着，如果你的组件带有全局副作用，则整个页面将会被重新加载。
+
+- ```<style>``` 会通过 ```vue-style-loader``` 自行热重载，所以它不会影响应用的状态。
+
+## 用法
+当使用脚手架工具 ```vue-cli``` 时，热重载是开箱即用的。
+
+当手动设置你的工程时，热重载会在你启动 ```webpack-dev-server --hot``` 服务时自动开启。
+
+高阶用户可能希望移步 ```vue-loader``` 内部使用的 [```vue-hot-reload-api```](https://github.com/vuejs/vue-hot-reload-api) 继续查阅。
+
+## 关闭热重载
+热重载默认是开启的，除非遇到以下情况：
+
+- ```webpack``` 的 ```target``` 的值是 ```node``` (服务端渲染)
+- ```webpack``` 会压缩代码
+- ```process.env.NODE_ENV === 'production'```
+
+你可以设置 ```hotReload: false``` 选项来显式地关闭热重载：
+```js
+module: {
+  rules: [
+    {
+      test: /\.vue$/,
+      loader: 'vue-loader',
+      options: {
+        hotReload: false // 关闭热重载
+      }
+    }
+  ]
+}
+```
+
+------------------------------
+
+# 函数式组件
+在一个 ```*.vue``` 文件中以单文件形式定义的函数式组件，现在对于模板编译、```scoped CSS``` 和热重载也有了良好的支持。
+
+要声明一个应该编译为函数式组件的模板，请将 ```functional``` 特性添加到模板块中。这样做以后就可以省略 ```<script>``` 块中的 ```functional``` 选项。
+
+模板中的表达式会在[函数式渲染上下文](https://cn.vuejs.org/v2/guide/render-function.html#%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BB%84%E4%BB%B6)中求值。这意味着在模板中，```prop``` 需要以 ```props.xxx``` 的形式访问：
+```html
+<template functional>
+  <div>{{ props.foo }}</div>
+</template>
+```
+你可以在 ```parent``` 上访问 ```Vue.prototype``` 全局定义的属性：
+```html
+<template functional>
+  <div>{{ parent.$someProperty }}</div>
+</template>
+```
+
+-------------------------------
+
+# 自定义块
+在 ```.vue``` 文件中，你可以自定义语言块。应用于一个自定义块的 ```loader``` 是基于这个块的 ```lang``` 特性、块的标签名以及你的 ```webpack``` 配置进行匹配的。
+
+如果指定了一个 ```lang``` 特性，则这个自定义块将会作为一个带有该 ```lang``` 扩展名的文件进行匹配。
+
+你也可以使用 ```resourceQuery``` 来为一个没有 ```lang``` 的自定义块匹配一条规则。例如为了匹配自定义块 ```<foo>```：
+```js
+{
+  module: {
+    rules: [
+      {
+        resourceQuery: /blockType=foo/,
+        loader: 'loader-to-use'
+      }
+    ]
+  }
+}
+```
+如果找到了一个自定义块的匹配规则，它将会被处理，否则该自定义块会被默默忽略。
+
+此外，如果这个自定义块被所有匹配的 ```loader``` 处理之后导出一个函数作为最终结果，则这个 ```*.vue``` 文件的组件会作为一个参数被这个函数调用。
+
+## Example
+这里有一个向组件内注入 ```<docs>``` 自定义块的示例，且它是在运行时可用的。
+
+为了注入自定义块的内容，我们将会撰写一个自定义 ```loader```：
+```js
+module.exports = function (source, map) {
+  this.callback(
+    null,
+    `export default function (Component) {
+      Component.options.__docs = ${
+        JSON.stringify(source)
+      }
+    }`,
+    map
+  )
+}
+```
+现在我们将会配置 ```webpack``` 来使用为 ```<docs>``` 自定义块撰写的自定义 ```loader```。
+```js
+// wepback.config.js
+module.exports = {
+  module: {
+    rules: [
+      {
+        resourceQuery: /blockType=docs/,
+        loader: require.resolve('./docs-loader.js')
+      }
+    ]
+  }
+}
+```
+现在我们可以在运行时访问被导入组件的 ```<docs>``` 块内容了。
+```html
+<!-- ComponentB.vue -->
+<template>
+  <div>Hello</div>
+</template>
+
+<docs>
+This is the documentation for component B.
+</docs>
+```
+```html
+<!-- ComponentA.vue -->
+<template>
+  <div>
+    <ComponentB/>
+    <p>{{ docs }}</p>
+  </div>
+</template>
+
+<script>
+import ComponentB from './ComponentB.vue';
+
+export default {
+  components: { ComponentB },
+  data () {
+    return {
+      docs: ComponentB.__docs
+    }
+  }
+}
+</script>
+```
+
+--------------------
+
+# CSS 提取
+> **提示**    
+请只在**生产环境**下使用 ```CSS``` 提取，这将便于你在开发环境下进行热重载。
+
+## webpack 4
+```sh
+npm install -D mini-css-extract-plugin
+```
+```js
+// webpack.config.js
+var MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
+module.exports = {
+  // 其它选项...
+  module: {
+    rules: [
+      // ... 忽略其它规则
+      {
+        test: /\.css$/,
+        use: [
+          process.env.NODE_ENV !== 'production'
+            ? 'vue-style-loader'
+            : MiniCssExtractPlugin.loader,
+          'css-loader'
+        ]
+      }
+    ]
+  },
+  plugins: [
+    // ... 忽略 vue-loader 插件
+    new MiniCssExtractPlugin({
+      filename: 'style.css'
+    })
+  ]
+}
+```
+你还可以查阅 [```mini-css-extract-plugin``` 文档](https://github.com/webpack-contrib/mini-css-extract-plugin)。
+
+## webpack 3
+```sh
+npm install -D extract-text-webpack-plugin
+```
+```js
+// webpack.config.js
+var ExtractTextPlugin = require("extract-text-webpack-plugin")
+
+module.exports = {
+  // 其它选项...
+  module: {
+    rules: [
+      // ...其它规则忽略
+      {
+        test: /\.css$/,
+        loader: ExtractTextPlugin.extract({
+          use: 'css-loader',
+          fallback: 'vue-style-loader'
+        })
+      }
+    ]
+  },
+  plugins: [
+    // ...vue-loader 插件忽略
+    new ExtractTextPlugin("style.css")
+  ]
+}
+```
+你也可以查阅 [```extract-text-webpack-plugin``` 文档](https://github.com/webpack-contrib/extract-text-webpack-plugin)。
+
+--------------------------------
+
+# 代码校验(Linting)
+## ESLint
+官方的 [```eslint-plugin-vue```](https://eslint.vuejs.org/) 同时支持在 ```Vue``` 单文件组件的模板和脚本部分的代码校验。
+
+请确认在你的 ```ESLint``` 配置文件中使用该插件要导入的配置：
+```js
+// .eslintrc.js
+module.exports = {
+  extends: [
+    "plugin:vue/essential"
+  ]
+}
+```
+接下来从命令行运行：
+```sh
+eslint --ext js,vue MyComponent.vue
+```
+另一个选项是使用 ```eslint-loader``` 那么你的 ```*.vue``` 文件在开发过程中每次保存的时候就会自动进行代码校验：
+```sh
+npm install -D eslint eslint-loader
+```
+请确保它是作为一个 ```pre-loader``` 运用的：
+```js
+// webpack.config.js
+module.exports = {
+  // ... 其它选项
+  module: {
+    rules: [
+      {
+        enforce: 'pre',
+        test: /\.(js|vue)$/,
+        loader: 'eslint-loader',
+        exclude: /node_modules/
+      }
+    ]
+  }
+}
+```
+## stylelint
+[```stylelint```](https://stylelint.io/) 支持在 ```Vue``` 单文件组件的样式部分的代码校验。
+
+[请确认在你的 ```stylelint``` 配置文件正确](https://stylelint.io/user-guide/configure)。
+
+接下来从命令行运行：
+```sh
+stylelint MyComponent.vue
+```
+另一个选项是使用 [```stylelint-webpack-plugin```](https://github.com/webpack-contrib/stylelint-webpack-plugin):
+```sh
+npm install -D stylelint-webpack-plugin
+```
+请确保它是作为一个插件运用的：
+```js
+// webpack.config.js
+const StyleLintPlugin = require('stylelint-webpack-plugin');
+module.exports = {
+  // ... 其它选项
+  plugins: [
+    new StyleLintPlugin({
+      files: ['**/*.{vue,htm,html,css,sss,less,scss,sass}'],
+    })
+  ]
+}
+```
+------------------------
+
+# 测试
+- ```Vue CLI``` 提供了预配置的单元测试和 ```e2e``` 测试安装。
+
+- 如果你有兴趣为 ```*.vue``` 文件手动设置单元测试，请查询 [```@vue/test-utils```](https://vue-test-utils.vuejs.org/zh/) 的文档，这份文档涵盖了对 [```mocha-webpack```](https://vue-test-utils.vuejs.org/zh/guides/#%E7%94%A8-mocha-%E5%92%8C-webpack-%E6%B5%8B%E8%AF%95%E5%8D%95%E6%96%87%E4%BB%B6%E7%BB%84%E4%BB%B6) 或 [```Jest```](https://vue-test-utils.vuejs.org/zh/guides/#%E7%94%A8-jest-%E6%B5%8B%E8%AF%95%E5%8D%95%E6%96%87%E4%BB%B6%E7%BB%84%E4%BB%B6) 的设置。
+
+---------------------------------
+
+---------------------------------
+# 选项参考
+## ```transformAssetUrls```
+- 类型：```{ [tag: string]: string | Array<string> }```
+
+- 默认值：
+  ```js
+  {
+    video: ['src', 'poster'],
+    source: 'src',
+    img: 'src',
+    image: ['xlink:href', 'href'],
+    use: ['xlink:href', 'href']
+  }
+  ```
+在模板编译过程中，编译器可以将某些特性转换为 ```require``` 调用，例如 ```src``` 中的 ```URL```。因此这些目标资源可以被 ```webpack``` 处理。例如 ```<img src="./foo.png">``` 会找到你文件系统中的 ```./foo.png``` 并将其作为一个依赖包含在你的包里。
+
+---
+
+## ```compiler```
+- 类型：```VueTemplateCompiler```
+
+- 默认值：```require('vue-template-compiler')```
+
+覆写用来编译单文件组件中 ```<template>``` 块的默认编译器。
+
+---
+
+## ```compilerOptions```
+- 类型：```Object```
+
+- 默认值：```{}```
+
+模板编译器的选项。当使用默认的 ```vue-template-compiler``` 的时候，你可以使用这个选项来添加自定义编译器指令、模块或通过 ```{ preserveWhitespace: false }``` 放弃模板标签之间的空格。
+
+详情查阅 [```vue-template-compiler``` 选项参考](https://github.com/vuejs/vue-docs-zh-cn/blob/master/vue-template-compiler/README.md#%E9%80%89%E9%A1%B9).
+
+---
+
+## ```transpileOptions```
+- 类型：```Object```
+
+- 默认值：```{}```
+
+为渲染函数的生成码配置从 ```ES2015+``` 到 ```ES5``` 的转译选项。这里的转译器是一份 ```Buble``` 的 ```fork```，因此你可以在[这里](https://buble.surge.sh/guide/#using-the-javascript-api)查阅可用的选项。
+
+模板渲染函数编译支持一个特殊的变换 ```stripWith``` (默认启用)，它会删除生成的渲染函数中的 ```with``` 用法，使它们兼容严格模式。
+
+---
+
+## ```optimizeSSR```
+- 类型：```boolean```
+
+- 默认值：当 ```webpack``` 配置中包含 ```target: 'node'``` 且 ```vue-template-compiler``` 版本号大于等于 ```2.4.0``` 时为 ```true```。
+
+开启 ```Vue 2.4``` 服务端渲染的编译优化之后，渲染函数将会把返回的 ```vdom``` 树的一部分编译为字符串，以提升服务端渲染的性能。在一些情况下，你可能想要明确地将其关掉，因为该渲染函数只能用于服务端渲染，而不能用于客户端渲染或测试环境。
+
+---
+
+## ```hotReload```
+- 类型：```boolean```
+
+- 默认值：在开发环境下是 ```true```，在生产环境下或 ```webpack``` 配置中有 ```target: 'node'``` 的时候是 ```false```。
+
+- 允许的值：```false``` (```true``` 会强制热重载，即便是生产环境或 ```target: 'node'``` 时)
+
+是否使用 ```webpack``` 的模块热替换在浏览器中应用变更而**不重载整个页面**。 用这个选项 (值设为 ```false```) 在开发环境下关闭热重载特性。
+
+---
+
+## ```productionMode```
+- 类型：```boolean```
+- 默认值：```process.env.NODE_ENV === 'production'```
+强制指定为生产环境，即禁止 ```loader``` 注入只在开发环境有效的代码 (例如 ```hot-reload``` 相关的代码)。
+
+---
+
+## ```shadowMode```
+- 类型：```boolean```
+- 默认值：```false```
+编译用于 ```Shadow DOM ```内部的组件。在该模式下，组件的样式会被注入到 ```this.$root.$options.shadowRoot```，而不是文档的 ```head``` 部分。
+
+---
+
+## ```cacheDirectory/cacheIdentifier```
+- 类型：```string```
+- 默认值：```undefined```
+
+当这两个选项同时被设置时，开启基于文件系统的模板编译缓存 (需要在工程里安装 ```cache-loader```)。
+
+  > **注意**    
+  在内部，```vue-loader``` 和 ```cache-loader``` 之间的交互使用了 ```loader``` 的内联 ```import``` 语法，```!``` 将会被认为是不同 ```loaders``` 之间的分隔符，所以请确保你的 ```cacheDirectory``` 路径中不包含``` !```。
+
+---
+
+## ```prettify```
+- 类型：```boolean```
+- 默认值：```true```
+在开发环境下，我们默认使用 ```prettier``` 格式化编译后的模板渲染代码，以方便调试。然而，如果你开发时碰到了 ```prettier``` 的某些罕见 ```bug```，比如格式化多层嵌套的函数时运行时间过长，你可以通过禁用这个选项来绕开。
+
+---
+
+## ```exposeFilename```
+- 类型：```boolean```
+- 默认值：```false```
+在非生产环境下，```vue-loader``` 会为组件注入一个 ```__file``` 属性以提升调试体验。如果一个组件没有 ```name``` 属性，```Vue``` 会通过 ```__file``` 字段进行推断，并用于控制台警告中的展示。
+
+这个属性在生产环境构建时会被去掉。但如果你在开发一个组件库并且烦于为每个组件设置 ```name```，你可能还会想使用它。这时可以把这个选项打开。
