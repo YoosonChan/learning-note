@@ -20,6 +20,11 @@
 
 -------------------------------
 
+## npm学习
+[npm总结](./npm/summary.md)
+
+-------------------------------
+
 ## yarn学习
 [yarn总结](./yarn/yarn_summary.md#)
 
@@ -35,6 +40,11 @@
 
 > [版本管理：node-semver](https://github.com/npm/node-semver)   
 > [版本管理计算器：npm semver calculator](https://semver.npmjs.com/)
+
+----------------------------
+
+## serverless
+[Serverless 极简入门手册](./serverless/serverless.md)
 
 ----------------------------
 ## 服务器相关
