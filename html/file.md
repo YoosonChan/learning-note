@@ -14,6 +14,35 @@
 
 ---
 
+# 总结(Vue)
+```html
+<input accept="text/html" type="file" @change="handleFile" />
+```
+
+```js
+handleFile (e) {
+  // 匹配判断文件类型
+  const type = /html$/
+  const file = e.target.files[0]
+  if (type.test(file.type)) {
+    // 读取文件内容
+    const fileReader = new FileReader()
+    fileReader.readAsText(file)
+    fileReader.onloadend = function (e) {
+      // 文本转dom对象
+      const html = document.createElement('html')
+      html.innerHTML = e.target.result
+      console.log(html)
+    }
+  } else {
+    alert('格式错误')
+    e.target.value = ''
+  }
+}
+```
+
+---
+
 # 在web应用程序中使用文件
 [```Web开发技术```](https://developer.mozilla.org/zh-CN/docs/Web) > [```Web API接口参考```](https://developer.mozilla.org/zh-CN/docs/Web/API) > [```File```](https://developer.mozilla.org/zh-CN/docs/Web/API/File) > [```在web应用程序中使用文件```](https://developer.mozilla.org/zh-CN/docs/Web/API/File/Using_files_from_web_applications)
 
