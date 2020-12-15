@@ -95,3 +95,24 @@
 --------------------------------
 ## 网站相关
 [网站备案](./website/beian.md)
+
+--------------------------------
+### 前端架构
+- 代码
+  > 代码校验(eslint)
+- 流程
+  > 版本控制(Git)
+- 测试
+  - 测试工具
+    - 单元测试
+      - Mocha + Chai
+      - Jest
+    - 组件测试
+      - @testing-library/vue
+    - 端到端(E2E, end to end)测试
+      - Cypress
+      - Nightwatch
+      - Puppeteer
+      - TestCafe
+- 文档
+  > markdown
