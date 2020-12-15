@@ -1,4 +1,6 @@
 # 命令行
+> [配置文件](https://docs.npmjs.com/cli/v6/configuring-npm/package-json)    
+> [命令行](https://docs.npmjs.com/cli/v6/commands)
 
 ## 初始化
 ```sh

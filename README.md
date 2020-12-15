@@ -1,7 +1,7 @@
 # 学习清单
 ## Vue学习
 
-### [vue](./vue/vue.md)
+### [```vue```](./vue/vue.md)
 - [vue-loader](./vue/vue-loader/vue-loader.md)
 - [vue-cli](./vue/vue-cli/vue-cli.md)
 - [vue-router](./vue/vue-router/vue-router.md)
@@ -15,18 +15,20 @@
 
 -------------------------------
 
-## [axios](./axios/axios.md)
+## [```axios```](./axios/axios.md)
 
 -------------------------------
 
-## HTML & CSS
-### html
+## ```HTML & CSS```
+### ```html```
 - [数组](./html/array.md)
+  > [JavaScript Array 对象](https://www.runoob.com/jsref/jsref-obj-array.html)
+- [字符串](./html/string.md)
+  > [JavaScript String 对象](https://www.runoob.com/jsref/jsref-obj-string.html)
 - [文件](./html/file.md)
 - [Live2D](./html/Live2D.md)
-- [字符串](./html/string.md)
 
-### css
+### ```css```
 - [滚动条](./css/scrollbar.md)
 
 -------------------------------
@@ -35,7 +37,7 @@
 
 -------------------------------
 
-## Git学习
+## ```Git```学习
 [Git总结](./git/git_summary.md)
 
 [Git学习笔记](./git/git.md)
@@ -43,13 +45,15 @@
 
 -------------------------------
 
-## npm学习
+## ```npm```学习
 - [npm CLI](./npm/npm-cli.md)
 - [npm总结](./npm/summary.md)
+  > [配置文件](https://docs.npmjs.com/cli/v6/configuring-npm/package-json)    
+  > [命令行](https://docs.npmjs.com/cli/v6/commands)  
 
 -------------------------------
 
-## yarn学习
+## ```yarn```学习
 [yarn总结](./yarn/yarn_summary.md#)
 
 [yarn学习笔记](./yarn/yarn.md#)
@@ -81,7 +85,7 @@
 
 ----------------------------
 
-## serverless
+## [```Serverless```](yun.serverless80.com)
 [Serverless 极简入门手册](./serverless/serverless.md)
 
 ----------------------------
