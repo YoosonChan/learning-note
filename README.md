@@ -4,6 +4,7 @@
 ### [```vue```](./vue/vue.md)
 - [vue-loader](./vue/vue-loader/vue-loader.md)
 - [vue-cli](./vue/vue-cli/vue-cli.md)
+- [vue.config.js](./vue/vue-cli/vue.config.js.md)
 - [vue-router](./vue/vue-router/vue-router.md)
 - [vuex](./vue/vuex/vuex.md)
 - [vue-ssr](./vue/vue-ssr/vue-ssr.md)
