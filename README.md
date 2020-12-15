@@ -9,6 +9,29 @@
 - [vue-ssr](./vue/vue-ssr/vue-ssr.md)
 - [vuetify](./vue/vuetify/vuetify.md)
 - [vue-press](./vue/vue-press/vue-press.md)
+---
+- [vue install](./vue/install.md)
+- [awesome vue](./vue/awesome-vue.md)
+
+-------------------------------
+
+## [axios](./axios/axios.md)
+
+-------------------------------
+
+## HTML & CSS
+### html
+- [数组](./html/array.md)
+- [文件](./html/file.md)
+- [Live2D](./html/Live2D.md)
+- [字符串](./html/string.md)
+
+### css
+- [滚动条](./css/scrollbar.md)
+
+-------------------------------
+
+## [正则表达式](./regexp/正则表达式.md)
 
 -------------------------------
 
@@ -21,7 +44,8 @@
 -------------------------------
 
 ## npm学习
-[npm总结](./npm/summary.md)
+- [npm CLI](./npm/npm-cli.md)
+- [npm总结](./npm/summary.md)
 
 -------------------------------
 
@@ -40,6 +64,20 @@
 
 > [版本管理：node-semver](https://github.com/npm/node-semver)   
 > [版本管理计算器：npm semver calculator](https://semver.npmjs.com/)
+
+----------------------------
+
+## webpack相关
+- [webpack总结](./webpack/00_webpack_summary.md)
+- [webpack概念](./webpack/01_webpack_concepts.md)
+- [webpack配置](./webpack/02_webpack_config.md)
+- [webpack API](./webpack/03_webpack_api.md)
+- [webpack指南](./webpack/04_webpack_handbook.md)
+
+----------------------------
+
+## 工具/插件
+- [highlight.js](./utils/highlight/highlight.md)
 
 ----------------------------
 
