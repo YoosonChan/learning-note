@@ -13,7 +13,7 @@
 ---
 - [vue install](./vue/install.md)
 - [awesome vue](./vue/awesome-vue.md)
-
+> 使用 [```n```](https://github.com/tj/n)，[```nvm```](https://github.com/nvm-sh/nvm) 或 [```nvm-windows```](https://github.com/coreybutler/nvm-windows) 在同一台电脑中管理多个 ```Node``` 版本。
 -------------------------------
 
 ## [```axios```](./axios/axios.md)
