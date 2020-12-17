@@ -1,6 +1,6 @@
 # 学习清单
-## Vue学习
 
+## Vue学习
 ### [```vue```](./vue/vue.md)
 - [vue-loader](./vue/vue-loader/vue-loader.md)
 - [vue-cli](./vue/vue-cli/vue-cli.md)
@@ -13,6 +13,8 @@
 ---
 - [vue install](./vue/install.md)
 - [awesome vue](./vue/awesome-vue.md)
+> [Vue风格指南](https://cn.vuejs.org/v2/style-guide/)
+
 > 使用 [```n```](https://github.com/tj/n)，[```nvm```](https://github.com/nvm-sh/nvm) 或 [```nvm-windows```](https://github.com/coreybutler/nvm-windows) 在同一台电脑中管理多个 ```Node``` 版本。
 -------------------------------
 
@@ -35,6 +37,20 @@
 -------------------------------
 
 ## [正则表达式](./regexp/正则表达式.md)
+
+-------------------------------
+
+## JavaScript学习
+- [awiat](./es6/await.md)
+- [深入理解javascript原型和闭包](./javascript/深入理解javascript原型和闭包.md)
+  > **原型**: ```[typeof, instanceof]```, ```[prototype, __proto__]```, **原型栈**    
+  > **```this```**: [构造函数, 函数作为对象的一个属性, 函数用call或者apply调用, 全局&调用普通函数]: 整个```原型链```中，```this```代表的也都是当前对象的值   
+  > **上下文**: [上下文环境, 执行上下文栈]    
+  > [作用域, 作用域链]
+  > **闭包**, 自由变量
+  > 1. 对于函数来说，上下文环境是在调用时创建的   
+  > 2. 除了全局作用域，只有函数才能创建作用域   
+- [websocket](./javascript/websocket.md)
 
 -------------------------------
 
