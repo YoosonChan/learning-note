@@ -1,5 +1,6 @@
 # [VuePress](https://vuepress.vuejs.org/zh/guide/)
 
+
 目录结构
 VuePress 遵循 “约定优于配置” 的原则，推荐的目录结构如下：
 ```
